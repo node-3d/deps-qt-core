@@ -193,8 +193,11 @@ jobs:
         id: pack-files
         run: |
           cd '${{ env.QT_TMP }}'
-          tar -czf '${{ github.workspace }}/${{ env.OS_NAME }}.gz' *
-          echo "pack=${{ github.workspace }}/${{ env.OS_NAME }}.gz" >> $GITHUB_OUTPUT
+          PACK_DIR='${{ github.workspace }}'
+          PACK_DIR="${PACK_DIR//'\'/"/"}"
+          PACK_PATH="$PACK_DIR/${{ env.OS_NAME }}.gz"
+          tar -czf "$PACK_PATH" *
+          echo "pack=$PACK_PATH" >> $GITHUB_OUTPUT
 
       - name: Attest Binary
         uses: actions/attest@v4
