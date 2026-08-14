@@ -196,7 +196,11 @@ jobs:
           PACK_DIR='${{ github.workspace }}'
           PACK_DIR="${PACK_DIR//'\'/"/"}"
           PACK_PATH="$PACK_DIR/${{ env.OS_NAME }}.gz"
-          tar -czf "$PACK_PATH" *
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            tar --force-local -czf "$PACK_PATH" *
+          else
+            tar -czf "$PACK_PATH" *
+          fi
           echo "pack=$PACK_PATH" >> $GITHUB_OUTPUT
 
       - name: Attest Binary
