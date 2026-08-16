@@ -23,3 +23,14 @@ mkdir -p $1/QtPrintSupport.framework
 mkdir -p $1/QtPrintSupport.framework/Versions
 mkdir -p $1/QtPrintSupport.framework/Versions/Current
 cp $2/lib/QtPrintSupport.framework/Versions/Current/QtPrintSupport $1/QtPrintSupport.framework/Versions/Current/QtPrintSupport
+
+for framework in "$1"/*.framework; do
+	name="$(basename "$framework" .framework)"
+	current="$framework/Versions/Current/$name"
+	version_a="$framework/Versions/A/$name"
+
+	if [ -f "$current" ] && [ ! -f "$version_a" ]; then
+		mkdir -p "$framework/Versions/A"
+		cp "$current" "$version_a"
+	fi
+done
