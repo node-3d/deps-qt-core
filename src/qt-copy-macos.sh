@@ -33,4 +33,6 @@ for framework in "$1"/*.framework; do
 		mkdir -p "$framework/Versions/A"
 		cp "$current" "$version_a"
 	fi
+
+	codesign --force --sign - "$current" "$version_a"
 done
