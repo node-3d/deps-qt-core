@@ -1,6 +1,6 @@
 #include <node_api.h>
 
-const char *qVersion() noexcept;
+extern "C" const char *qVersion() noexcept;
 
 napi_value probe(napi_env env, napi_callback_info) {
 	napi_value result;
