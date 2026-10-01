@@ -19,6 +19,12 @@ binaries through **npm** for **Node.js** addons.
 * Libraries: Qt Core.
 * Linking: dynamic dll-type.
 
+Node3D does not build Qt. The packaged binaries come from Qt's official
+installer and are shipped without rebuilding, so their operating-system and
+ABI requirements are inherited from the corresponding Qt distribution. In
+particular, Qt 6.8.0's official Linux ARM64 binaries require GLIBC 2.38; that
+platform therefore requires a GLIBC 2.38 or newer system.
+
 
 ### Windows
 
@@ -124,7 +130,9 @@ The rest of this package is MIT licensed.
 
 ## Binary Origin
 
-Release archives are built by this repository's public GitHub Actions workflows.
+Release archives are assembled by this repository's public GitHub Actions
+workflows from binaries supplied by Qt's official installer. Node3D does not
+compile replacement Qt binaries or lower their upstream platform requirements.
 
 Attestations: https://github.com/node-3d/deps-qt-core/attestations
 
