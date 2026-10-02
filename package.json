@@ -1,7 +1,7 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "@node-3d/deps-qt-core",
-	"version": "5.0.1",
+	"version": "5.0.2",
 	"description": "Qt Core dynamic libraries for Node.js addons",
 	"license": "MIT",
 	"main": "index.js",
