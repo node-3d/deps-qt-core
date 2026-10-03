@@ -1,10 +1,66 @@
 #include <node_api.h>
 
-extern "C" const char *qVersion() noexcept;
+#include <vector>
 
-napi_value probe(napi_env env, napi_callback_info) {
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
+using QVersion = const char *(*)();
+
+void fail(napi_env env, const char *message) {
+	napi_throw_error(env, nullptr, message);
+}
+
+napi_value probe(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+	if (argc != 1) {
+		fail(env, "Expected the Qt Core library path");
+		return nullptr;
+	}
+
+#ifdef _WIN32
+	size_t length = 0;
+	napi_get_value_string_utf16(env, argv[0], nullptr, 0, &length);
+	std::vector<char16_t> path(length + 1);
+	napi_get_value_string_utf16(env, argv[0], path.data(), path.size(), &length);
+	HMODULE library = LoadLibraryW(reinterpret_cast<const wchar_t *>(path.data()));
+	if (library == nullptr) {
+		fail(env, "Unable to load the packaged Qt6Core.dll");
+		return nullptr;
+	}
+	auto qVersion = reinterpret_cast<QVersion>(GetProcAddress(library, "qVersion"));
+#else
+	size_t length = 0;
+	napi_get_value_string_utf8(env, argv[0], nullptr, 0, &length);
+	std::vector<char> path(length + 1);
+	napi_get_value_string_utf8(env, argv[0], path.data(), path.size(), &length);
+	void *library = dlopen(path.data(), RTLD_NOW | RTLD_LOCAL);
+	if (library == nullptr) {
+		fail(env, dlerror());
+		return nullptr;
+	}
+	auto qVersion = reinterpret_cast<QVersion>(dlsym(library, "qVersion"));
+#endif
+
+	if (qVersion == nullptr) {
+		fail(env, "Unable to resolve qVersion from the packaged Qt Core runtime");
+		return nullptr;
+	}
+
 	napi_value result;
 	napi_create_string_utf8(env, qVersion(), NAPI_AUTO_LENGTH, &result);
+
+#ifdef _WIN32
+	FreeLibrary(library);
+#else
+	dlclose(library);
+#endif
+
 	return result;
 }
 
